@@ -1,14 +1,17 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::path::Path;
 
 use anyhow::Result;
 
-#[allow(clippy::type_complexity)]
-fn parse_input() -> Result<(Box<[u32]>, Box<[u32]>)> {
-    let file = File::open("data/day_1.txt")?;
-    let iterator = BufReader::new(file).lines();
+use crate::SolutionResult;
 
+type Input = (Box<[u32]>, Box<[u32]>);
+
+fn input(path: impl AsRef<Path>) -> Result<Input> {
+    let iterator = BufReader::new(File::open(path)?).lines();
     let capacity = iterator.size_hint().1.unwrap_or_else(|| iterator.size_hint().0);
+
     let mut lhs_array = Vec::<u32>::with_capacity(capacity);
     let mut rhs_array = Vec::<u32>::with_capacity(capacity);
 
@@ -23,8 +26,8 @@ fn parse_input() -> Result<(Box<[u32]>, Box<[u32]>)> {
     Ok((lhs_array.into_boxed_slice(), rhs_array.into_boxed_slice()))
 }
 
-pub fn part_1() -> Result<()> {
-    let (mut lhs_array, mut rhs_array) = self::parse_input()?;
+pub fn solution_1(path: impl AsRef<Path>) -> SolutionResult {
+    let (mut lhs_array, mut rhs_array) = self::input(path)?;
     let mut differences = Vec::with_capacity(lhs_array.len());
 
     lhs_array.sort_unstable();
@@ -37,13 +40,11 @@ pub fn part_1() -> Result<()> {
         differences.push(difference as u64);
     }
 
-    println!("{}", differences.into_iter().sum::<u64>());
-
-    Ok(())
+    Ok(differences.into_iter().sum())
 }
 
-pub fn part_2() -> Result<()> {
-    let (lhs_array, rhs_array) = self::parse_input()?;
+pub fn solution_2(path: impl AsRef<Path>) -> SolutionResult {
+    let (lhs_array, rhs_array) = self::input(path)?;
     let mut multiples = Vec::with_capacity(lhs_array.len());
 
     for lhs_value in lhs_array {
@@ -52,7 +53,5 @@ pub fn part_2() -> Result<()> {
         multiples.push(lhs_value as u64 * rhs_appearances as u64);
     }
 
-    println!("{}", multiples.into_iter().sum::<u64>());
-
-    Ok(())
+    Ok(multiples.into_iter().sum())
 }
