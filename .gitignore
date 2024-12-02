@@ -1,1 +1,3 @@
 /target
+/data/day_*.txt
+!/data/day_*_example.txt
