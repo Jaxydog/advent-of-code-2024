@@ -1,10 +1,11 @@
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 use anyhow::Result;
 
 #[allow(clippy::type_complexity)]
 fn parse_input() -> Result<(Box<[u32]>, Box<[u32]>)> {
-    let file = std::fs::File::open("data/day_1.txt")?;
+    let file = File::open("data/day_1.txt")?;
     let iterator = BufReader::new(file).lines();
 
     let capacity = iterator.size_hint().1.unwrap_or_else(|| iterator.size_hint().0);

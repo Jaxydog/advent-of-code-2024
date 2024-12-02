@@ -1,6 +1,7 @@
 use anyhow::{Result, bail};
 
 mod day_1;
+mod day_2;
 
 fn main() -> Result<()> {
     let Some(day) = std::env::args().nth(1) else {
@@ -25,5 +26,6 @@ fn main() -> Result<()> {
 
     match_days! {
         1 => day_1,
+        2 => day_2,
     }
 }
