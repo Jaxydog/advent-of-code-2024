@@ -33,7 +33,7 @@ fn input(path: impl AsRef<Path>) -> Result<Input> {
 }
 
 fn check_sorting(array: &[u8]) -> bool {
-    // Check if the maximum difference between two consecutive elements is within 1..=3.
+    // Check if the array is sorted either forwards *or* backwards.
     array.is_sorted() || array.iter().rev().is_sorted()
 }
 
@@ -58,6 +58,8 @@ pub fn solution_2(path: impl AsRef<Path>) -> SolutionResult {
 
         let mut buffer = Vec::with_capacity(report_array.len().saturating_sub(1));
 
+        // Dumb brute force check for removing single items.
+        // At least we re-use the buffer!
         for index in 0 .. report_array.len() {
             buffer.clear();
             buffer.extend(report_array.iter().copied().enumerate().filter_map(|(i, n)| (i != index).then_some(n)));
