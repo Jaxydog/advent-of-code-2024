@@ -4,7 +4,7 @@ Solutions for Advent of Code 2024, written in Rust of course :3 🦀
 
 This is also a way for me to try out the new edition 2024 nightly.
 
-Endorsed by transgender spiders 🕷️🕸️
+Endorsed and written by transgender spiders 🕷️🕸️🏳️‍⚧️
 
 ## Usage
 
