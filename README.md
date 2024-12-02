@@ -3,7 +3,7 @@
 Solutions for Advent of Code 2024, written in Rust of course :3 🦀
 
 This is also a way for me to try out the new edition 2024 nightly.
-*Yes* I *do* know that it's over-engineered, *no* I will *not* change it, and *yes* that's a both an unsafe block and a semi-complex macro in `main`.
+*Yes* I *do* know that it's over-engineered, *no* I will *not* change it, and *yes* that's both an unsafe block and a semi-complex macro in `main`.
 I love my `main.rs`, it brings me joy.
 
 Written and endorsed by transgender spiders 🕷️🕸️🏳️‍⚧️
