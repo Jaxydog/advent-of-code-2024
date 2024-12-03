@@ -8,7 +8,7 @@ use anyhow::{Result, bail};
 
 use crate::SolutionResult;
 
-// Hello, chat. Today we're going to misuse the `FromStr` trait because I like using `a.parse()`.
+// Hello, chat. Today we're going to misuse the `FromStr` trait because I like using `.parse()`.
 //
 // We will NOT be checking the entire provided string, we WILL be only checking the start of it.
 // And that's okay! Break rules, live stupidly, and eat rocks.
