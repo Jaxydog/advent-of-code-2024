@@ -5,6 +5,7 @@ use anyhow::{Result, anyhow};
 mod day_1;
 mod day_2;
 mod day_3;
+mod day_4;
 
 // I use a type alias here in case I ever need to change the integer size.
 pub type SolutionResult = Result<u64>;
@@ -52,6 +53,7 @@ fn main() -> Result<()> {
         1 => day_1,
         2 => day_2,
         3 => day_3,
+        4 => day_4,
     })?;
 
     stdout().write_fmt(format_args!("{solution}\n")).map_err(Into::into)
