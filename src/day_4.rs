@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::BTreeMap;
 use std::fs::read_to_string;
 use std::path::Path;
 
@@ -104,53 +104,70 @@ fn input(path: impl AsRef<Path>) -> Result<Input> {
     Ok(read_to_string(path)?.lines().map(|v| v.chars().collect()).collect())
 }
 
-fn search_position(grid: &[Box<[char]>], x: usize, y: usize, string: &str) -> usize {
-    // Recursive search algorithm to look for characters in a given direction until the stack is empty or the position
-    // goes out of bounds.
-    fn search(grid: &[Box<[char]>], x: usize, y: usize, direction: Direction, stack: &mut VecDeque<char>) -> bool {
-        stack.pop_front().is_none_or(|c| {
-            let Some(x) = x.checked_add_signed(direction.offset_x()) else { return false };
-            let Some(y) = y.checked_add_signed(direction.offset_y()) else { return false };
+// Recursive search algorithm to look for characters in a given direction until the stack is empty or the position
+// goes out of bounds.
+fn search_direction(grid: &[Box<[char]>], x: usize, y: usize, dir: Direction, stack: &[char], index: usize) -> bool {
+    stack.get(index).is_none_or(|c| {
+        let Some(x) = x.checked_add_signed(dir.offset_x()) else { return false };
+        let Some(y) = y.checked_add_signed(dir.offset_y()) else { return false };
 
-            grid.get(y).and_then(|v| v.get(x)).is_some_and(|v| v == &c) && search(grid, x, y, direction, stack)
-        })
-    }
+        grid.get(y).and_then(|v| v.get(x)).is_some_and(|v| v == c)
+            && search_direction(grid, x, y, dir, stack, index + 1)
+    })
+}
 
-    let mut characters: VecDeque<char> = string.chars().collect();
-
-    // We need to manually check the first character first, since we don't know the direction yet.
-    if characters.pop_front().is_none_or(|v| v != grid[y][x]) {
-        return 0;
-    }
-
-    let mut count = 0;
-
-    // Check every direction from the target position.
-    for direction in Direction::iter_no_center() {
-        let mut stack = characters.clone();
-
-        if search(grid, x, y, direction, &mut stack) {
-            count += 1;
+/// Linear search through the entire grid!!! Hooray!!!
+fn traverse_grid(grid: &[Box<[char]>], mut f: impl FnMut(&[Box<[char]>], usize, usize)) {
+    for y in 0 .. grid.len() {
+        for x in 0 .. grid[0].len() {
+            f(grid, x, y);
         }
     }
-
-    count
 }
 
 pub fn solution_1(path: impl AsRef<Path>) -> SolutionResult {
-    let grid = self::input(path)?;
+    const PATTERN: &[char] = &['X', 'M', 'A', 'S'];
+
     let mut count = 0;
 
-    // Linear search through the entire grid!!! Hooray!!!
-    for y in 0 .. grid.len() {
-        for x in 0 .. grid[0].len() {
-            count += self::search_position(&grid, x, y, "XMAS");
+    self::traverse_grid(&self::input(path)?, |grid, x, y| {
+        // We need to manually check the first character, since we don't know the direction yet.
+        if PATTERN.first().is_none_or(|v| v != &grid[y][x]) {
+            return;
         }
-    }
+
+        // Check every direction from the target position.
+        for dir in Direction::iter_no_center() {
+            if search_direction(grid, x, y, dir, PATTERN, 1) {
+                count += 1;
+            }
+        }
+    });
 
     Ok(count as _)
 }
 
 pub fn solution_2(path: impl AsRef<Path>) -> SolutionResult {
-    todo!()
+    const PATTERN: &[char] = &['M', 'A', 'S'];
+
+    let mut centerpoints = BTreeMap::<(usize, usize), usize>::new();
+
+    self::traverse_grid(&self::input(path)?, |grid, x, y| {
+        // We need to manually check the first character, since we don't know the direction yet.
+        if PATTERN.first().is_none_or(|v| v != &grid[y][x]) {
+            return;
+        }
+
+        for dir in Direction::iter_no_center().filter(|d| {
+            // Only allow diagonal directions.
+            d.x.is_some() && d.y.is_some() && search_direction(grid, x, y, *d, PATTERN, 1)
+        }) {
+            let Some(x) = x.checked_add_signed(dir.offset_x()) else { continue };
+            let Some(y) = y.checked_add_signed(dir.offset_y()) else { continue };
+
+            *centerpoints.entry((x, y)).or_default() += 1;
+        }
+    });
+
+    Ok(centerpoints.into_iter().filter(|(_, v)| *v > 1).count() as _)
 }
