@@ -10,6 +10,7 @@ mod day_3;
 mod day_4;
 mod day_5;
 mod day_6;
+mod day_7;
 
 #[allow(unused)]
 mod utility {
@@ -65,6 +66,7 @@ fn main() -> Result<()> {
         4 => day_4,
         5 => day_5,
         6 => day_6,
+        7 => day_7,
     })?;
 
     stdout().write_fmt(format_args!("{solution}\n")).map_err(Into::into)
