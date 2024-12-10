@@ -22,7 +22,7 @@ cd advent-of-code-2024/
 
 # Compile and run the executable
 # Usage: cargo run -- <day #> <solution #> <use example data? (0 or 1)>
-cargo run -- 1 1 0
+cargo run --release -- 1 1 0
 ```
 
 Alternatively, you can think *really hard* while looking at your input file and it will probably be just as efficient.
