@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::fmt::Write;
 use std::hash::Hash;
 use std::num::NonZeroUsize;
 use std::rc::Rc;
@@ -210,6 +211,11 @@ impl<T> Grid2D<T> {
         Self { size, cells }
     }
 
+    /// Returns the grid's size.
+    pub const fn size(&self) -> Size2D {
+        self.size
+    }
+
     /// Returns a reference to the value at the given position.
     pub fn get(&self, pos: Pos2D) -> Option<&T> {
         self.cells[pos.into_index(self.size)?].as_ref()
@@ -300,6 +306,11 @@ where
         Self { size, cells, values: HashSet::new() }
     }
 
+    /// Returns the grid's size.
+    pub const fn size(&self) -> Size2D {
+        self.size
+    }
+
     /// Returns a reference to the value at the given position.
     pub fn get(&self, pos: Pos2D) -> Option<&Rc<T>> {
         self.cells[pos.into_index(self.size)?].as_ref()
@@ -367,4 +378,32 @@ where
 
         self.into_cells().enumerate().map(move |(i, v)| (Pos2D::from_index(size, i).unwrap(), v))
     }
+}
+
+pub fn char_grid_display(grid: &Grid2D<char>) -> impl std::fmt::Display {
+    struct Displayer<'a>(&'a Grid2D<char>);
+
+    impl std::fmt::Display for Displayer<'_> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            for y in 0 .. self.0.size().h().get() {
+                for x in 0 .. self.0.size().w().get() {
+                    let pos = Pos2D::new(x, y);
+
+                    if let Some(c) = self.0.get(pos).copied() {
+                        write!(f, "{c}")?;
+                    } else {
+                        write!(f, " ")?;
+                    }
+                }
+
+                if y != self.0.size().h().get() - 1 {
+                    writeln!(f)?;
+                }
+            }
+
+            Ok(())
+        }
+    }
+
+    Displayer(grid)
 }
