@@ -1,3 +1,5 @@
+#![feature(hash_set_entry)]
+
 use std::io::{Write, stdout};
 
 use anyhow::{Result, anyhow};
@@ -7,6 +9,12 @@ mod day_2;
 mod day_3;
 mod day_4;
 mod day_5;
+mod day_6;
+
+#[allow(unused)]
+mod utility {
+    pub mod grid;
+}
 
 // I use a type alias here in case I ever need to change the integer size.
 pub type SolutionResult = Result<u64>;
@@ -56,6 +64,7 @@ fn main() -> Result<()> {
         3 => day_3,
         4 => day_4,
         5 => day_5,
+        6 => day_6,
     })?;
 
     stdout().write_fmt(format_args!("{solution}\n")).map_err(Into::into)
