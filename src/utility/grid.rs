@@ -1,7 +1,9 @@
 use std::collections::HashSet;
-use std::fmt::Write;
+use std::fmt::{Display, Write};
 use std::hash::Hash;
+use std::iter::FusedIterator;
 use std::num::NonZeroUsize;
+use std::ops::Neg;
 use std::rc::Rc;
 
 /// A 2D position.
@@ -136,6 +138,14 @@ impl Offset2D {
     }
 }
 
+impl Neg for Offset2D {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self::new(-self.x(), -self.y())
+    }
+}
+
 /// A 2D grid size.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Size2D {
@@ -190,6 +200,16 @@ impl Size2D {
     /// Returns whether this grid size contains the given position.
     pub const fn contains_position(self, pos: Pos2D) -> bool {
         pos.x() < self.w().get() && pos.y() < self.h().get()
+    }
+
+    /// Returns an iterator over all X and Y positions within this [`Size2D`].
+    pub fn coordinates(&self) -> impl Iterator<Item = (usize, usize)> {
+        (0 .. self.h().get()).flat_map(|y| (0 .. self.w().get()).map(move |x| (x, y)))
+    }
+
+    /// Returns an iterator over all [`Pos2D`] positions within this [`Size2D`].
+    pub fn positions(&self) -> impl Iterator<Item = Pos2D> {
+        (0 .. self.h().get()).flat_map(|y| (0 .. self.w().get()).map(move |x| Pos2D::new(x, y)))
     }
 }
 
@@ -246,22 +266,22 @@ impl<T> Grid2D<T> {
     }
 
     /// Returns an iterator over references to the cells of this grid.
-    pub fn cells(&self) -> impl Iterator<Item = &Option<T>> {
+    pub fn cells(&self) -> std::slice::Iter<Option<T>> {
         self.cells.iter()
     }
 
     /// Returns an iterator over references to the cells of this grid.
-    pub fn cells_mut(&mut self) -> impl Iterator<Item = &mut Option<T>> {
+    pub fn cells_mut(&mut self) -> std::slice::IterMut<Option<T>> {
         self.cells.iter_mut()
     }
 
     /// Returns an iterator over the cells of this grid.
-    pub fn into_cells(self) -> impl Iterator<Item = Option<T>> {
+    pub fn into_cells(self) -> std::vec::IntoIter<Option<T>> {
         self.cells.into_iter()
     }
 
     /// Returns an iterator over references to the cells of this grid and their positions.
-    pub fn iter(&self) -> impl Iterator<Item = (Pos2D, &Option<T>)> {
+    pub fn iter(&self) -> impl Clone + Iterator<Item = (Pos2D, &Option<T>)> {
         self.cells().enumerate().map(|(i, v)| (Pos2D::from_index(self.size, i).unwrap(), v))
     }
 
@@ -346,22 +366,22 @@ where
     }
 
     /// Returns an iterator over references to the cells of this grid.
-    pub fn cells(&self) -> impl Iterator<Item = &Option<Rc<T>>> {
+    pub fn cells(&self) -> std::slice::Iter<Option<Rc<T>>> {
         self.cells.iter()
     }
 
     /// Returns an iterator over references to the cells of this grid.
-    pub fn cells_mut(&mut self) -> impl Iterator<Item = &mut Option<Rc<T>>> {
+    pub fn cells_mut(&mut self) -> std::slice::IterMut<Option<Rc<T>>> {
         self.cells.iter_mut()
     }
 
     /// Returns an iterator over the cells of this grid.
-    pub fn into_cells(self) -> impl Iterator<Item = Option<Rc<T>>> {
+    pub fn into_cells(self) -> std::vec::IntoIter<Option<Rc<T>>> {
         self.cells.into_iter()
     }
 
     /// Returns an iterator over references to the cells of this grid and their positions.
-    pub fn iter(&self) -> impl Iterator<Item = (Pos2D, &Option<Rc<T>>)> {
+    pub fn iter(&self) -> impl Clone + Iterator<Item = (Pos2D, &Option<Rc<T>>)> {
         self.cells().enumerate().map(|(i, v)| (Pos2D::from_index(self.size, i).unwrap(), v))
     }
 
@@ -378,32 +398,4 @@ where
 
         self.into_cells().enumerate().map(move |(i, v)| (Pos2D::from_index(size, i).unwrap(), v))
     }
-}
-
-pub fn char_grid_display(grid: &Grid2D<char>) -> impl std::fmt::Display {
-    struct Displayer<'a>(&'a Grid2D<char>);
-
-    impl std::fmt::Display for Displayer<'_> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            for y in 0 .. self.0.size().h().get() {
-                for x in 0 .. self.0.size().w().get() {
-                    let pos = Pos2D::new(x, y);
-
-                    if let Some(c) = self.0.get(pos).copied() {
-                        write!(f, "{c}")?;
-                    } else {
-                        write!(f, " ")?;
-                    }
-                }
-
-                if y != self.0.size().h().get() - 1 {
-                    writeln!(f)?;
-                }
-            }
-
-            Ok(())
-        }
-    }
-
-    Displayer(grid)
 }
