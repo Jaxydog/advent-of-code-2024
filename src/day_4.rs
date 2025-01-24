@@ -1,31 +1,16 @@
 use std::collections::BTreeMap;
-use std::fs::read_to_string;
 use std::path::Path;
 
-use anyhow::{Result, bail};
+use anyhow::Result;
 
 use crate::SolutionResult;
-use crate::utility::grid::{Grid2D, Offset2D, Pos2D, Size2D};
+use crate::utility::grid::{Grid2D, Offset2D, Pos2D, read_to_char_grid};
 
 // Split the input string into a grid of characters.
 type Input = Grid2D<char>;
 
 fn input(path: impl AsRef<Path>) -> Result<Input> {
-    let string = read_to_string(path)?;
-
-    let w = string.lines().next().map_or(0, |v| v.len());
-    let h = string.lines().count();
-    let Some(size) = Size2D::try_new(w, h) else { bail!("invalid grid size") };
-
-    let mut grid = Grid2D::new(size);
-
-    for (y, line) in string.lines().enumerate() {
-        for (x, character) in line.chars().enumerate() {
-            grid.set(Pos2D::new(x, y), character);
-        }
-    }
-
-    Ok(grid)
+    read_to_char_grid(path, |_, c| Some(c))
 }
 
 // Recursive search algorithm to look for characters in a given direction until the stack is empty or the position

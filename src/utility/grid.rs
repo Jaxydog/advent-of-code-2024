@@ -4,7 +4,10 @@ use std::hash::Hash;
 use std::iter::FusedIterator;
 use std::num::NonZeroUsize;
 use std::ops::Neg;
+use std::path::Path;
 use std::rc::Rc;
+
+use anyhow::{Result, bail};
 
 /// A 2D position.
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -398,4 +401,35 @@ where
 
         self.into_cells().enumerate().map(move |(i, v)| (Pos2D::from_index(size, i).unwrap(), v))
     }
+}
+
+/// Reads the file at the given path into a string, which is then converted into a character grid.
+pub fn read_to_char_grid<P, F>(path: P, visit_char: F) -> Result<Grid2D<char>>
+where
+    P: AsRef<Path>,
+    F: FnMut(Pos2D, char) -> Option<char>,
+{
+    self::string_to_char_grid(&std::fs::read_to_string(path)?, visit_char)
+}
+
+/// Convert a string into a character grid using the given conversion function.
+pub fn string_to_char_grid<F>(string: &str, mut visit_char: F) -> Result<Grid2D<char>>
+where
+    F: FnMut(Pos2D, char) -> Option<char>,
+{
+    let w = string.lines().next().map_or(0, |v| v.len());
+    let h = string.lines().count();
+    let Some(size) = Size2D::try_new(w, h) else { bail!("invalid grid size ({w}x{h})") };
+
+    let mut grid = Grid2D::new(size);
+
+    for (y, line) in string.lines().enumerate() {
+        for (x, character) in line.chars().enumerate() {
+            let pos = Pos2D::new(x, y);
+
+            visit_char(pos, character).inspect(|c| grid.set(pos, *c));
+        }
+    }
+
+    Ok(grid)
 }
