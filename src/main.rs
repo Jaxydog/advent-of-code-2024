@@ -4,14 +4,14 @@ use std::io::{Write, stdout};
 
 use anyhow::{Result, anyhow};
 
-mod day_1;
-mod day_2;
-mod day_3;
-mod day_4;
-mod day_5;
-mod day_6;
-mod day_7;
-mod day_8;
+mod day_01;
+mod day_02;
+mod day_03;
+mod day_04;
+mod day_05;
+mod day_06;
+mod day_07;
+mod day_08;
 
 #[allow(unused)]
 mod utility {
@@ -61,14 +61,14 @@ fn main() -> Result<()> {
     let use_examples = arguments.next().is_some_and(|v| v.parse::<u8>().is_ok_and(|v| v == 1));
 
     let solution = match_arguments!((expected_day, expected_solution, use_examples) {
-        1 => day_1,
-        2 => day_2,
-        3 => day_3,
-        4 => day_4,
-        5 => day_5,
-        6 => day_6,
-        7 => day_7,
-        8 => day_8,
+        1 => day_01,
+        2 => day_02,
+        3 => day_03,
+        4 => day_04,
+        5 => day_05,
+        6 => day_06,
+        7 => day_07,
+        8 => day_08,
     })?;
 
     stdout().write_fmt(format_args!("{solution}\n")).map_err(Into::into)
